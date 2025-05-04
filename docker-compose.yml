@@ -1,0 +1,10 @@
+services:
+  reasoning-fuzzy:
+    working_dir: /app
+    volumes:
+      - ./app/main.py:/app/main.py
+    build:
+      context: .
+    image: calderaly/ga-search:latest
+    container_name: python-fuzzy
+    command: python main.py

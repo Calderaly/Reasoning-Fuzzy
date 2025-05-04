@@ -13,8 +13,8 @@ def triangular(x, a, b, c):
     Returns:
         float: Derajat keanggotaan.
 
-    Exceptions:
-        Zero Division: Jika selisih (b - a) dan atau (c - b) sama dengan 0, keluarkan error ini.
+    Exception:
+        Zero Division: Jika selisih (b - a) dan atau (c - b) sama dengan 0, keluarkan error ini. 
         Selain itu, keluarkan error untuk kondisi tak terduga lainnya saat menghitung derajat keanggotaan.
     """
     try:
@@ -60,21 +60,22 @@ def harga_fuzzy(harga):
     mahal = triangular(harga, 40000, 50000, 55000)
     return murah, sedang, mahal
 
-fuzzy_rules_tsukamoto = {
-    1: {'pelayanan': 'RENDAH', 'harga': 'MAHAL', 'kelayakan': 35},
-    2: {'pelayanan': 'SEDANG', 'harga': 'SEDANG', 'kelayakan': 65},
-    3: {'pelayanan': 'TINGGI', 'harga': 'MURAH', 'kelayakan': 95},
-    4: {'pelayanan': 'RENDAH', 'harga': 'MURAH', 'kelayakan': 45},
-    5: {'pelayanan': 'SEDANG', 'harga': 'MURAH', 'kelayakan': 75},
-    6: {'pelayanan': 'TINGGI', 'harga': 'SEDANG', 'kelayakan': 85},
-    7: {'pelayanan': 'RENDAH', 'harga': 'SEDANG', 'kelayakan': 55},
-    8: {'pelayanan': 'SEDANG', 'harga': 'MAHAL', 'kelayakan': 60},
-    9: {'pelayanan': 'TINGGI', 'harga': 'MAHAL', 'kelayakan': 70},
+fuzzy_rules = {
+    1: {'pelayanan': 'RENDAH', 'harga': 'MAHAL', 'kelayakan': 'RENDAH'},
+    2: {'pelayanan': 'SEDANG', 'harga': 'SEDANG', 'kelayakan': 'SEDANG'},
+    3: {'pelayanan': 'TINGGI', 'harga': 'MURAH', 'kelayakan': 'TINGGI'},
+    4: {'pelayanan': 'RENDAH', 'harga': 'MURAH', 'kelayakan': 'RENDAH'},
+    5: {'pelayanan': 'SEDANG', 'harga': 'MURAH', 'kelayakan': 'SEDANG'},
+    6: {'pelayanan': 'TINGGI', 'harga': 'SEDANG', 'kelayakan': 'TINGGI'},
+    7: {'pelayanan': 'RENDAH', 'harga': 'SEDANG', 'kelayakan': 'RENDAH'},
+    8: {'pelayanan': 'SEDANG', 'harga': 'MAHAL', 'kelayakan': 'SEDANG'},
+    9: {'pelayanan': 'TINGGI', 'harga': 'MAHAL', 'kelayakan': 'TINGGI'},
 }
 
-def inferensi_tsukamoto(kualitas_pelayanan_rendah, kualitas_pelayanan_sedang, kualitas_pelayanan_tinggi, harga_murah, harga_sedang, harga_mahal):
+def inferensi_fuzzy(kualitas_pelayanan_rendah, kualitas_pelayanan_sedang, kualitas_pelayanan_tinggi, harga_murah, harga_sedang, 
+harga_mahal):
     """
-    Melakukan inferensi fuzzy menggunakan metode Tsukamoto.
+    Melakukan inferensi fuzzy berdasarkan aturan-aturan yang telah didefinisikan.
 
     Args:
         kualitas_pelayanan_rendah (float): Derajat keanggotaan kualitas pelayanan rendah.
@@ -85,10 +86,11 @@ def inferensi_tsukamoto(kualitas_pelayanan_rendah, kualitas_pelayanan_sedang, ku
         harga_mahal (float): Derajat keanggotaan harga mahal.
 
     Returns:
-        list: List of tuples, di mana setiap tuple berisi bobot ($\alpha$) dan nilai crisp hasil inferensi.
+        tuple: Derajat keanggotaan (kelayakan_rendah, kelayakan_sedang, kelayakan_tinggi).
     """
-    rule_outputs = []
+    rule_outputs = {}
 
+    #  Mapping derajat keanggotaan ke dalam bentuk dictionary untuk mempermudah akses
     pelayanan_inputs = {
         'RENDAH': kualitas_pelayanan_rendah,
         'SEDANG': kualitas_pelayanan_sedang,
@@ -100,25 +102,34 @@ def inferensi_tsukamoto(kualitas_pelayanan_rendah, kualitas_pelayanan_sedang, ku
         'MAHAL': harga_mahal,
     }
 
-    for rule_num, rule in fuzzy_rules_tsukamoto.items():
+    # Iterasi melalui setiap aturan dan menghitung implikasi
+    for rule_num, rule in fuzzy_rules.items():
         pelayanan_condition = pelayanan_inputs[rule['pelayanan']]
         harga_condition = harga_inputs[rule['harga']]
-        output_crisp = rule['kelayakan']
+
+        if rule['kelayakan'] not in rule_outputs:
+            rule_outputs[rule['kelayakan']] = []
 
         if rule_num in [1, 3, 5, 9]: # Rules menggunakan OR
-            alpha = max(pelayanan_condition, harga_condition)
+            rule_outputs[rule['kelayakan']].append(max(pelayanan_condition, harga_condition))
         else: # Rules menggunakan AND
-            alpha = min(pelayanan_condition, harga_condition)
-        rule_outputs.append((alpha, output_crisp))
+            rule_outputs[rule['kelayakan']].append(min(pelayanan_condition, harga_condition))
 
-    return rule_outputs
+    # Menggabungkan output dari setiap aturan untuk mendapatkan derajat keanggotaan akhir
+    kelayakan_rendah = max(rule_outputs.get('RENDAH', [0]))
+    kelayakan_sedang = max(rule_outputs.get('SEDANG', [0]))
+    kelayakan_tinggi = max(rule_outputs.get('TINGGI', [0]))
+    
+    return kelayakan_rendah, kelayakan_sedang, kelayakan_tinggi
 
-def defuzzifikasi_centroid_tsukamoto(rule_outputs):
+def defuzzifikasi(kelayakan_rendah, kelayakan_sedang, kelayakan_tinggi):
     """
-    Melakukan defuzzifikasi menggunakan metode centroid untuk Tsukamoto.
+    Melakukan defuzzifikasi menggunakan metode centroid.
 
     Args:
-        rule_outputs (list): List of tuples (bobot, nilai_crisp) dari hasil inferensi.
+        kelayakan_rendah (float): Derajat keanggotaan kelayakan rendah.
+        kelayakan_sedang (float): Derajat keanggotaan kelayakan sedang.
+        kelayakan_tinggi (float): Derajat keanggotaan kelayakan tinggi.
 
     Returns:
         float: Skor kelayakan hasil defuzzifikasi.
@@ -126,19 +137,16 @@ def defuzzifikasi_centroid_tsukamoto(rule_outputs):
         Zero Division: jika hasil denominator sama dengan 0, keluarkan error ini
     """
     try:
-        numerator = sum(alpha * crisp_value for alpha, crisp_value in rule_outputs)
-        denominator = sum(alpha for alpha, _ in rule_outputs)
-        if denominator == 0:
-            raise ZeroDivisionError
+        numerator = (kelayakan_rendah * 30) + (kelayakan_sedang * 60) + (kelayakan_tinggi * 90)
+        denominator = kelayakan_rendah + kelayakan_sedang + kelayakan_tinggi
         return numerator / denominator
     except ZeroDivisionError:
-        print("Nilai pembagi sama dengan 0 pada proses defuzzifikasi, mengembalikan nilai 0.")
-        return 0
-    except Exception as e:
-        print(f"Terjadi kesalahan saat defuzzifikasi: {e}")
+        print("Selisih pembagi sama dengan 0, melakukan terminasi dengan mengembalikan nilai 0 (diluar jangkauan)...")
         return 0
     else:
-        print("Defuzzifikasi berhasil!")
+        print("Eksekusi berhasil!")
+
+# Kalau pakai openpyxl, bikin fungsi konversi file.xlsx ke file.csv dan timpa disini
 
 def read_csv_data(file_path):
     """
@@ -151,7 +159,7 @@ def read_csv_data(file_path):
         list: List of dictionaries, di mana setiap dictionary merepresentasikan satu baris data.
               Mengembalikan None jika terjadi kesalahan.
     Exceptions:
-        File not found: Jika file akan dibaca (dari input) tidak ada, maka keluarkan error ini.
+        File not found: Jika file akan dibaca (dari input) tidak ada, maka keluarkan error ini. 
         Selain itu, keluarkan error untuk kondisi tak terduga lainnya saat membaca file CSV.
     """
     try:
@@ -197,6 +205,8 @@ def write_csv_data(file_path, data, header):
     else:
         print(f"Berhasil menyimpan data ke file CSV: {file_path}")
 
+# Kalau pakai openpyxl, bikin fungsi konversi file.csv ke file.xlsx dan timpa disini
+
 def sort_key(restoran):
     """Kunci sorting kustom."""
     return (
@@ -205,18 +215,19 @@ def sort_key(restoran):
         restoran['harga']           # Urutkan harga dari terendah
     )
 
-def pilih_restoran_terbaik_tsukamoto(csv_file_path, num_restoran, output_file_path):
+def pilih_restoran_terbaik(csv_file_path, num_restoran, output_file_path):
     """
-    Membaca data restoran dari file CSV, menghitung skor kelayakan menggunakan Tsukamoto,
+    Membaca data restoran dari file CSV, menghitung skor kelayakan,
     mengurutkan restoran berdasarkan skor, dan menyimpan hasilnya ke file CSV baru.
     Pengurutan dilakukan berdasarkan skor kelayakan (tertinggi),
     kemudian berdasarkan kualitas pelayanan (tertinggi), dan terakhir berdasarkan harga (terendah).
 
     Args:
-        csv_file_path (str): Path ke file CSV yang berisi data restoran.
+        csv_file_path (str): Path ke file CSV yang berisi data restoran, bisa diganti untuk file.xlsx
         num_restoran (int): Jumlah restoran terbaik yang akan dipilih.
-        output_file_path (str): Path ke file CSV untuk menyimpan hasilnya.
+        output_file_path (str): Path ke file CSV untuk menyimpan hasilnya, bisa diganti untuk file.xlsx
     """
+    # Apabila menggunakan file excel, panggil fungsi untuk konversi file.xlsx ke file.csv dan timpa komentar ini
     data = read_csv_data(csv_file_path)
     if data is None:
         return
@@ -229,11 +240,11 @@ def pilih_restoran_terbaik_tsukamoto(csv_file_path, num_restoran, output_file_pa
 
         kualitas_pelayanan_rendah, kualitas_pelayanan_sedang, kualitas_pelayanan_tinggi = kualitas_pelayanan_fuzzy(pelayanan)
         harga_murah, harga_sedang, harga_mahal = harga_fuzzy(harga)
-        rule_outputs = inferensi_tsukamoto(
+        kelayakan_rendah, kelayakan_sedang, kelayakan_tinggi = inferensi_fuzzy(
             kualitas_pelayanan_rendah, kualitas_pelayanan_sedang, kualitas_pelayanan_tinggi,
             harga_murah, harga_sedang, harga_mahal
         )
-        skor_kelayakan = defuzzifikasi_centroid_tsukamoto(rule_outputs)
+        skor_kelayakan = defuzzifikasi(kelayakan_rendah, kelayakan_sedang, kelayakan_tinggi)
 
         hasil_restoran.append({
             'id_restoran': id_restoran,
@@ -247,16 +258,18 @@ def pilih_restoran_terbaik_tsukamoto(csv_file_path, num_restoran, output_file_pa
 
     header = ['id_restoran', 'pelayanan', 'harga', 'skor_kelayakan']
     write_csv_data(output_file_path, restoran_terbaik, header)
+    # Apabila menggunakan file excel, panggil fungsi untuk konversi file.csv ke file.xlsx dan timpa komentar ini
 
-    print(f"\n{num_restoran} Restoran Terbaik (Tsukamoto):")
+    print(f"\n{num_restoran} Restoran Terbaik:")
     for restoran in restoran_terbaik:
-        print(f"ID: {restoran['id_restoran']}, Kualitas Servis: {restoran['pelayanan']:.2f}, Harga: {restoran['harga']:.2f}, Skor Kelayakan: {restoran['skor_kelayakan']:.2f}")
+        print(f"ID: {restoran['id_restoran']}, Kualitas Servis: {restoran['pelayanan']:.2f}, Harga: {restoran['harga']:.2f}, 
+        Skor Kelayakan: {restoran['skor_kelayakan']:.2f}")
 
 #Program Utama
-if __name__ == "__main__":
+if _name_ == "_main_":
     csv_file = "restoran.csv"  # Input CSV file, ganti jadi xlsx kalau pakai file excel
     num_restaurant_selected = 5 # Limit up to top 5 restaurant
     output_csv_file = "peringkat.csv" # Output CSV file, ganti jadi xlsx kalau pakai file excel
 
-    # Proses Fuzzy Tsukamoto dan dapatkan restoran terbaik dari CSV
-    pilih_restoran_terbaik_tsukamoto(csv_file, num_restaurant_selected, output_csv_file)
+    # Proses Fuzzy dan dapatkan restoran terbaik dari CSV
+    pilih_restoran_terbaik(csv_file, num_restaurant_selected, output_csv_file)

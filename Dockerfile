@@ -3,7 +3,6 @@ FROM python:3.12-slim
 ENV VIRTUAL_ENV=/opt/venv
 WORKDIR /app
 
-COPY restoran.csv /app/restoran.csv
 
 COPY app/ /app/
 CMD ["python", "main.py"]

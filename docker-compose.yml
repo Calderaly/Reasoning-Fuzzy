@@ -3,6 +3,8 @@ services:
     working_dir: /app
     volumes:
       - ./app/main.py:/app/main.py
+      - ./restoran.csv:/app/restoran.csv   # Input CSV
+      - ./peringkat.csv:/app/peringkat.csv # Output CSV
     build:
       context: .
     image: calderaly/ga-search:latest

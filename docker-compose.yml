@@ -3,10 +3,13 @@ services:
     working_dir: /app
     volumes:
       - ./app/main.py:/app/main.py
+      - ./app/main.lsp:/app/main.lsp
       - ./restoran.csv:/app/restoran.csv   # Input CSV
       - ./peringkat.csv:/app/peringkat.csv # Output CSV
     build:
       context: .
     image: calderaly/ga-search:latest
     container_name: python-fuzzy
-    command: python main.py
+    command: 
+      - python main.py
+      - sbcl --load main.lsp

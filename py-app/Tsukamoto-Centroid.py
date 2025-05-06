@@ -64,16 +64,15 @@ fuzzy_rules_tsukamoto = {
     1: {'pelayanan': 'RENDAH', 'harga': 'MAHAL', 'kelayakan': 35},
     2: {'pelayanan': 'SEDANG', 'harga': 'SEDANG', 'kelayakan': 65},
     3: {'pelayanan': 'TINGGI', 'harga': 'MURAH', 'kelayakan': 95},
-    4: {'pelayanan': 'RENDAH', 'harga': 'MURAH', 'kelayakan': 45},
+    4: {'pelayanan': 'RENDAH', 'harga': 'MURAH', 'kelayakan': 55},
     5: {'pelayanan': 'SEDANG', 'harga': 'MURAH', 'kelayakan': 75},
     6: {'pelayanan': 'TINGGI', 'harga': 'SEDANG', 'kelayakan': 85},
-    7: {'pelayanan': 'RENDAH', 'harga': 'SEDANG', 'kelayakan': 55},
+    7: {'pelayanan': 'RENDAH', 'harga': 'SEDANG', 'kelayakan': 45},
     8: {'pelayanan': 'SEDANG', 'harga': 'MAHAL', 'kelayakan': 60},
     9: {'pelayanan': 'TINGGI', 'harga': 'MAHAL', 'kelayakan': 70},
 }
 
-def inferensi_tsukamoto(kualitas_pelayanan_rendah, kualitas_pelayanan_sedang, kualitas_pelayanan_tinggi, harga_murah, harga_sedang, 
-harga_mahal):
+def inferensi_tsukamoto(kualitas_pelayanan_rendah, kualitas_pelayanan_sedang, kualitas_pelayanan_tinggi, harga_murah, harga_sedang, harga_mahal):
     """
     Melakukan inferensi fuzzy menggunakan metode Tsukamoto.
 
@@ -86,7 +85,7 @@ harga_mahal):
         harga_mahal (float): Derajat keanggotaan harga mahal.
 
     Returns:
-        list: List of tuples, di mana setiap tuple berisi bobot ($\alpha$) dan nilai crisp hasil inferensi.
+        list: List of tuples, di mana setiap tuple berisi bobot (α) dan nilai crisp hasil inferensi.
     """
     rule_outputs = []
 
@@ -106,9 +105,9 @@ harga_mahal):
         harga_condition = harga_inputs[rule['harga']]
         output_crisp = rule['kelayakan']
 
-        if rule_num in [1, 3, 5, 9]: # Rules menggunakan OR
+        if rule_num in [1, 3, 5, 9]:  # Rules menggunakan OR
             alpha = max(pelayanan_condition, harga_condition)
-        else: # Rules menggunakan AND
+        else:  # Rules menggunakan AND
             alpha = min(pelayanan_condition, harga_condition)
         rule_outputs.append((alpha, output_crisp))
 
@@ -150,7 +149,7 @@ def read_csv_data(file_path):
 
     Returns:
         list: List of dictionaries, di mana setiap dictionary merepresentasikan satu baris data.
-              Mengembalikan None jika terjadi kesalahan.
+             Mengembalikan None jika terjadi kesalahan.
     Exceptions:
         File not found: Jika file akan dibaca (dari input) tidak ada, maka keluarkan error ini.
         Selain itu, keluarkan error untuk kondisi tak terduga lainnya saat membaca file CSV.
@@ -201,17 +200,17 @@ def write_csv_data(file_path, data, header):
 def sort_key(restoran):
     """Kunci sorting kustom."""
     return (
-        -restoran['skor_kelayakan'],  # Urutkan skor kelayakan dari tertinggi
-        -restoran['pelayanan'],      # Urutkan pelayanan dari tertinggi
-        restoran['harga']           # Urutkan harga dari terendah
+        -restoran['skor_kelayakan'],  # Urutkan skor kelayakan dari tertinggi (descending)
+        restoran['pelayanan'] * 100000 - restoran['harga'],  # Prioritize pelayanan, then harga
     )
+
 
 def pilih_restoran_terbaik_tsukamoto(csv_file_path, num_restoran, output_file_path):
     """
     Membaca data restoran dari file CSV, menghitung skor kelayakan menggunakan Tsukamoto,
     mengurutkan restoran berdasarkan skor, dan menyimpan hasilnya ke file CSV baru.
     Pengurutan dilakukan berdasarkan skor kelayakan (tertinggi),
-    kemudian berdasarkan kualitas pelayanan (tertinggi), dan terakhir berdasarkan harga (terendah).
+    kemudian berdasarkan kombinasi kualitas pelayanan (tertinggi) dan harga (terendah).
 
     Args:
         csv_file_path (str): Path ke file CSV yang berisi data restoran.
@@ -251,14 +250,13 @@ def pilih_restoran_terbaik_tsukamoto(csv_file_path, num_restoran, output_file_pa
 
     print(f"\n{num_restoran} Restoran Terbaik (Tsukamoto):")
     for restoran in restoran_terbaik:
-        print(f"ID: {restoran['id_restoran']}, Kualitas Servis: {restoran['pelayanan']:.2f}, Harga: {restoran['harga']:.2f}, 
-        Skor Kelayakan: {restoran['skor_kelayakan']:.2f}")
+        print(f"ID: {restoran['id_restoran']}, Kualitas Servis: {restoran['pelayanan']:.2f}, Harga: {restoran['harga']:.2f}, Skor Kelayakan: {restoran['skor_kelayakan']:.2f}")
 
-#Program Utama
+# Program Utama
 if __name__ == "__main__":
     csv_file = "restoran.csv"  # Input CSV file, ganti jadi xlsx kalau pakai file excel
-    num_restaurant_selected = 5 # Limit up to top 5 restaurant
-    output_csv_file = "peringkat.csv" # Output CSV file, ganti jadi xlsx kalau pakai file excel
+    num_restaurant_selected = 5  # Limit up to top 5 restaurant
+    output_csv_file = "peringkat.csv"  # Output CSV file, ganti jadi xlsx kalau pakai file excel
 
     # Proses Fuzzy Tsukamoto dan dapatkan restoran terbaik dari CSV
     pilih_restoran_terbaik_tsukamoto(csv_file, num_restaurant_selected, output_csv_file)

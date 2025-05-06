@@ -2,14 +2,12 @@ services:
   reasoning-fuzzy:
     working_dir: /app
     volumes:
-      - ./app/main.py:/app/main.py
-      - ./app/main.lsp:/app/main.lsp
+      - ./app/main.py:/app/main.py # For Python code
+      - ./app/main.lsp:/app/main.lsp # For Common Lisp code (Steel Bank Common Lisp compiler)
       - ./restoran.csv:/app/restoran.csv   # Input CSV
       - ./peringkat.csv:/app/peringkat.csv # Output CSV
     build:
       context: .
     image: calderaly/ga-search:latest
     container_name: python-fuzzy
-    command: 
-      - python main.py
-      - sbcl --load main.lsp
+    command: /bin/bash -c "python main.py && sbcl --load main.lsp"

@@ -25,7 +25,7 @@ LABEL maintainer="Fa Ainama Caldera S <faainamacaldera16@gmail.com>"
 LABEL version="1.0"
 LABEL description="A simple Python and Common Lisp (Steel Bank) GA search application"
 
-# FROM python:3.12-slim
+#FROM python:3.12-slim
 # Install Common Lisp
 #RUN apt-get update && apt-get install -y --no-install-recommends sbcl && rm -rf /var/lib/apt/lists/*
 #ENV VIRTUAL_ENV=/opt/venv
@@ -34,7 +34,7 @@ LABEL description="A simple Python and Common Lisp (Steel Bank) GA search applic
 #WORKDIR /app
 #COPY app/ /app/
 # Run Python in the foreground and Lisp in the background (less ideal)
-#CMD python main.py & sbcl --load main.lisp
+#CMD python main.py & sbcl --load main.lsp
 # Labeling image
 #LABEL maintainer="Fa Ainama Caldera S <faainamacaldera16@gmail.com>"
 #LABEL version="1.0"

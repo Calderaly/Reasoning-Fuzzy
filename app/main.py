@@ -64,10 +64,10 @@ fuzzy_rules_tsukamoto = {
     1: {'pelayanan': 'RENDAH', 'harga': 'MAHAL', 'kelayakan': 35},
     2: {'pelayanan': 'SEDANG', 'harga': 'SEDANG', 'kelayakan': 65},
     3: {'pelayanan': 'TINGGI', 'harga': 'MURAH', 'kelayakan': 95},
-    4: {'pelayanan': 'RENDAH', 'harga': 'MURAH', 'kelayakan': 45},
+    4: {'pelayanan': 'RENDAH', 'harga': 'MURAH', 'kelayakan': 55},
     5: {'pelayanan': 'SEDANG', 'harga': 'MURAH', 'kelayakan': 75},
     6: {'pelayanan': 'TINGGI', 'harga': 'SEDANG', 'kelayakan': 85},
-    7: {'pelayanan': 'RENDAH', 'harga': 'SEDANG', 'kelayakan': 55},
+    7: {'pelayanan': 'RENDAH', 'harga': 'SEDANG', 'kelayakan': 45},
     8: {'pelayanan': 'SEDANG', 'harga': 'MAHAL', 'kelayakan': 60},
     9: {'pelayanan': 'TINGGI', 'harga': 'MAHAL', 'kelayakan': 70},
 }

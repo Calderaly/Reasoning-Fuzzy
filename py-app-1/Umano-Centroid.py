@@ -246,7 +246,7 @@ def pilih_restoran_terbaik(csv_file_path, num_restoran, output_file_path):
 
 
 
-if _name_ == "_main_":
+if __name__ == "__main__":
     csv_file = "restoran.csv"  # Input CSV file
     output_csv_file = "peringkat.csv" # Output CSV file
     num_restoran = 5

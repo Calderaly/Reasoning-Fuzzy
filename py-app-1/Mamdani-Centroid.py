@@ -143,8 +143,11 @@ def defuzzifikasi(kelayakan_rendah, kelayakan_sedang, kelayakan_tinggi):
     except ZeroDivisionError:
         print("Selisih pembagi sama dengan 0, melakukan terminasi dengan mengembalikan nilai 0 (diluar jangkauan)...")
         return 0
+    except Exception as e:
+        print(f"Terjadi kesalahan saat defuzzifikasi: {e}")
+        return 0
     else:
-        print("Eksekusi berhasil!")
+        print("Defuzzifikasi berhasil!")
 
 # Kalau pakai openpyxl, bikin fungsi konversi file.xlsx ke file.csv dan timpa disini
 
@@ -266,7 +269,7 @@ def pilih_restoran_terbaik(csv_file_path, num_restoran, output_file_path):
         Skor Kelayakan: {restoran['skor_kelayakan']:.2f}")
 
 #Program Utama
-if _name_ == "_main_":
+if __name__ == "__main__":
     csv_file = "restoran.csv"  # Input CSV file, ganti jadi xlsx kalau pakai file excel
     num_restaurant_selected = 5 # Limit up to top 5 restaurant
     output_csv_file = "peringkat.csv" # Output CSV file, ganti jadi xlsx kalau pakai file excel

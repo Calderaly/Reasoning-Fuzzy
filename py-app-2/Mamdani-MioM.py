@@ -13,13 +13,25 @@ def triangular(x, a, b, c):
 
     Returns:
         float: Derajat keanggotaan.
+
+    Exception:
+        Zero Division: Jika selisih (b - a) dan atau (c - b) sama dengan 0, keluarkan error ini. 
+        Selain itu, keluarkan error untuk kondisi tak terduga lainnya saat menghitung derajat keanggotaan.
     """
-    if a <= x <= b:
-        return (x - a) / (b - a)
-    elif b < x <= c:
-        return (c - x) / (c - b)
-    else:
+    try:
+        if a <= x <= b:
+            return (x - a) / (b - a)
+        elif b < x <= c:
+            return (c - x) / (c - b)
+        else:
+            return 0
+    except ZeroDivisionError:
+        print("Selisih pembagi sama dengan 0, melakukan terminasi dengan mengembalikan nilai 0 (diluar jangkauan)...")
         return 0
+    except Exception as e:
+        print(e)
+    else:
+        print("Berhasil menghitung derajat keanggotaan!")
 
 # Fungsi untuk menghitung derajat keanggotaan untuk kualitas pelayanan
 def kualitas_pelayanan_fuzzy(pelayanan):
@@ -158,7 +170,8 @@ def defuzzifikasi(kelayakan_rendah, kelayakan_sedang, kelayakan_tinggi):
         # Hitung rata-rata dari nilai-nilai output maksimum
         return (max_output_values[0] + max_output_values[-1]) / 2
 
-# Fungsi untuk membaca data dari file CSV
+# Kalau pakai openpyxl, bikin fungsi konversi file.xlsx ke file.csv dan timpa disini
+
 def read_csv_data(file_path):
     """
     Membaca data dari file CSV.
@@ -169,6 +182,9 @@ def read_csv_data(file_path):
     Returns:
         list: List of dictionaries, di mana setiap dictionary merepresentasikan satu baris data.
               Mengembalikan None jika terjadi kesalahan.
+    Exceptions:
+        File not found: Jika file akan dibaca (dari input) tidak ada, maka keluarkan error ini. 
+        Selain itu, keluarkan error untuk kondisi tak terduga lainnya saat membaca file CSV.
     """
     try:
         data = []
@@ -176,8 +192,8 @@ def read_csv_data(file_path):
             reader = csv.DictReader(csvfile)
             for row in reader:
                 # Convert string values to appropriate types (float for pelayanan and harga, int for id)
-                row['id'] = int(row['id'])
-                row['pelayanan'] = float(row['pelayanan'])
+                row['id_Pelanggan'] = int(row['id_Pelanggan'])
+                row['Pelayanan'] = float(row['Pelayanan'])
                 row['harga'] = float(row['harga'])
                 data.append(row)
         return data
@@ -187,8 +203,9 @@ def read_csv_data(file_path):
     except Exception as e:
         print(f"Terjadi kesalahan saat membaca file CSV: {e}")
         return None
+    else:
+        print(f"Berhasil membaca file CSV: {file_path}")
 
-# Fungsi untuk menulis data ke file CSV
 def write_csv_data(file_path, data, header):
     """
     Menulis data ke file CSV.
@@ -197,6 +214,9 @@ def write_csv_data(file_path, data, header):
         file_path (str): Path ke file CSV yang akan dibuat.
         data (list): List of dictionaries yang akan ditulis ke file CSV.
         header (list): List dari string yang merupakan header dari CSV.
+
+    Exceptions:
+        Keluarkan error untuk kondisi tak terduga saat menulis (membuat) file CSV.
     """
     try:
         with open(file_path, 'w', newline='') as csvfile:
@@ -204,29 +224,42 @@ def write_csv_data(file_path, data, header):
             writer.writeheader()
             for row in data:
                 writer.writerow(row)
-        print(f"Berhasil menyimpan data ke file CSV: {file_path}")
     except Exception as e:
         print(f"Terjadi kesalahan saat menulis file CSV: {e}")
+    else:
+        print(f"Berhasil menyimpan data ke file CSV: {file_path}")
 
-# Fungsi untuk memilih restoran terbaik dari file CSV
+# Kalau pakai openpyxl, bikin fungsi konversi file.csv ke file.xlsx dan timpa disini
+
+def sort_key(restoran):
+    """Kunci sorting kustom."""
+    return (
+        -restoran['skor_kelayakan'],  # Urutkan skor kelayakan dari tertinggi
+        -restoran['pelayanan'],      # Urutkan pelayanan dari tertinggi
+        restoran['harga']           # Urutkan harga dari terendah
+    )
+
 def pilih_restoran_terbaik(csv_file_path, num_restoran, output_file_path):
     """
     Membaca data restoran dari file CSV, menghitung skor kelayakan,
     mengurutkan restoran berdasarkan skor, dan menyimpan hasilnya ke file CSV baru.
+    Pengurutan dilakukan berdasarkan skor kelayakan (tertinggi),
+    kemudian berdasarkan kualitas pelayanan (tertinggi), dan terakhir berdasarkan harga (terendah).
 
     Args:
-        csv_file_path (str): Path ke file CSV yang berisi data restoran.
+        csv_file_path (str): Path ke file CSV yang berisi data restoran, bisa diganti untuk file.xlsx
         num_restoran (int): Jumlah restoran terbaik yang akan dipilih.
-        output_file_path (str): Path ke file CSV untuk menyimpan hasilnya.
+        output_file_path (str): Path ke file CSV untuk menyimpan hasilnya, bisa diganti untuk file.xlsx
     """
+    # Apabila menggunakan file excel, panggil fungsi untuk konversi file.xlsx ke file.csv dan timpa komentar ini
     data = read_csv_data(csv_file_path)
     if data is None:
         return
 
     hasil_restoran = []
     for row in data:
-        id_restoran = row['id']
-        pelayanan = row['pelayanan']
+        id_restoran = row['id_Pelanggan']
+        pelayanan = row['Pelayanan']
         harga = row['harga']
 
         kualitas_pelayanan_rendah, kualitas_pelayanan_sedang, kualitas_pelayanan_tinggi = kualitas_pelayanan_fuzzy(pelayanan)
@@ -244,22 +277,23 @@ def pilih_restoran_terbaik(csv_file_path, num_restoran, output_file_path):
             'skor_kelayakan': skor_kelayakan
         })
 
-    hasil_restoran_sorted = sorted(hasil_restoran, key=lambda x: x['skor_kelayakan'], reverse=True)
-    restoran_terbaik = hasil_restoran_sorted[:num_restoran]
+    # Urutkan restoran menggunakan kunci sorting kustom
+    restoran_terbaik = sorted(hasil_restoran, key=sort_key)[:num_restoran]
 
     header = ['id_restoran', 'pelayanan', 'harga', 'skor_kelayakan']
     write_csv_data(output_file_path, restoran_terbaik, header)
+    # Apabila menggunakan file excel, panggil fungsi untuk konversi file.csv ke file.xlsx dan timpa komentar ini
 
-    print("\n5 Restoran Terbaik:")
+    print(f"\n{num_restoran} Restoran Terbaik:")
     for restoran in restoran_terbaik:
-        print(f"ID: {restoran['id_restoran']}, Kualitas Servis: {restoran['pelayanan']:.2f}, Harga: {restoran['harga']:.2f}, Skor Kelayakan: {restoran['skor_kelayakan']:.2f}")
+        print(f"ID: {restoran['id_restoran']}, Kualitas Pelayanan: {restoran['pelayanan']:.2f}, Harga: {restoran['harga']:.2f}, 
+        Skor Kelayakan: {restoran['skor_kelayakan']:.2f}")
 
-
-
-if _name_ == "_main_":
-    csv_file = "restoran.csv"  # Input CSV file
-    output_csv_file = "peringkat.csv" # Output CSV file
-    num_restoran = 5
+#Program Utama
+if __name__ == "__main__":
+    csv_file = "restoran.csv"  # Input CSV file, ganti jadi xlsx kalau pakai file excel
+    num_restaurant_selected = 5 # Limit up to top 5 restaurant
+    output_csv_file = "peringkat.csv" # Output CSV file, ganti jadi xlsx kalau pakai file excel
 
     # Proses Fuzzy dan dapatkan restoran terbaik dari CSV
-    pilih_restoran_terbaik(csv_file, num_restoran, output_csv_file)
+    pilih_restoran_terbaik(csv_file, num_restaurant_selected, output_csv_file)

@@ -115,35 +115,46 @@
                                  (apply #'max (gethash "SEDANG" rule-outputs))
                                  (apply #'max (gethash "TINGGI" rule-outputs)))))) ; Using cl-tuples for tuple creation
 
+; Fungsi untuk melakukan defuzzifikasi (menggunakan metode Mean of Maximum - MOM)
 (defun defuzzifikasi (kelayakan-rendah kelayakan-sedang kelayakan-tinggi)
   "
-  Melakukan defuzzifikasi menggunakan metode centroid.
+  Melakukan defuzzifikasi menggunakan metode Mean of Maximum (MOM).
 
   Args:
-      kelayakan_rendah (float): Derajat keanggotaan kelayakan rendah.
-      kelayakan_sedang (float): Derajat keanggotaan kelayakan sedang.
-      kelayakan_tinggi (float): Derajat keanggotaan kelayakan tinggi.
+    kelayakan_rendah (float): Derajat keanggotaan kelayakan rendah.
+    kelayakan_sedang (float): Derajat keanggotaan kelayakan sedang.
+    kelayakan_tinggi (float): Derajat keanggotaan kelayakan tinggi.
 
   Returns:
-      float: Skor kelayakan hasil defuzzifikasi.
+    float: Skor kelayakan hasil defuzzifikasi.
+    
   Exceptions:
-      Zero Division: jika hasil denominator sama dengan 0, keluarkan error ini.
-      Selain itu, keluarkan error untuk kondisi tak terduga lainnya saat melakukan defuzzifikasi.
-  "
+    Zero Division: jika hasil denominator sama dengan 0, keluarkan error ini.
+    Selain itu, keluarkan error untuk kondisi tak terduga lainnya saat melakukan defuzzifikasi.
+    "
   (handler-case
-      (let* ((numerator (+ (* kelayakan-rendah 30)
-                           (* kelayakan-sedang 60)
-                           (* kelayakan-tinggi 90)))
-             (denominator (+ kelayakan-rendah kelayakan-sedang kelayakan-tinggi)))
-        (/ numerator denominator))
+      (let ((domain (loop for i from 0 to 100 collect i)))
+      (let ((output-rendah (remove-if-not (lambda (val) (<= val 30)) domain))
+            (output-sedang (remove-if-not (lambda (val) (and (> val 30) (<= val 70))) domain))
+            (output-tinggi (remove-if-not (lambda (val) (> val 70)) domain)))
+        (let ((keanggotaan-rendah kelayakan-rendah)
+              (keanggotaan-sedang kelayakan-sedang)
+              (keanggotaan-tinggi kelayakan-tinggi))
+          (let ((max-output-rendah (when keanggotaan-rendah output-rendah))
+                (max-output-sedang (when keanggotaan-sedang output-sedang))
+                (max-output-tinggi (when keanggotaan-tinggi output-tinggi)))
+            (let ((max-output-values (append max-output-rendah max-output-sedang max-output-tinggi)))
+              (if (null max-output-values)
+                  50
+                  (/ (reduce #'+ max-output-values) (length max-output-values)))))))))
     (division-by-zero (e)
-      (format t "Selisih pembagi sama dengan 0, melakukan terminasi dengan mengembalikan nilai 0 (diluar jangkauan)...")
+      (format t "Division difference equals 0, terminating by returning value 0 (out of range)...")
       0)
     (error (e)
-      (format t "Terjadi kesalahan saat defuzzifikasi: ~a" e)
+      (format t "An error occurred during defuzzification: ~a" e)
       0)
     (t
-      (format t "Defuzzifikasi berhasil!"))))
+      (format t "Defuzzification successful!")))
 
 ; Kalau pakai lisp-xl, bikin fungsi konversi file.xlsx ke file.csv dan timpa disini
 
@@ -266,4 +277,4 @@
     (pilih-restoran-terbaik csv-file num-restaurant-selected output-csv-file)))
 
 ; Uncomment the following line to run the main function
- (main)
+(main)

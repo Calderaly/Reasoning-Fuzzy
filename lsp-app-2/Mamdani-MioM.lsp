@@ -115,9 +115,10 @@
                                  (apply #'max (gethash "SEDANG" rule-outputs))
                                  (apply #'max (gethash "TINGGI" rule-outputs)))))) ; Using cl-tuples for tuple creation
 
+; Fungsi untuk melakukan defuzzifikasi (menggunakan metode Middle of Maximum - MiOM)
 (defun defuzzifikasi (kelayakan-rendah kelayakan-sedang kelayakan-tinggi)
   "
-  Melakukan defuzzifikasi menggunakan metode centroid.
+  Melakukan defuzzifikasi menggunakan metode Middle of Maximum (MOM).
 
   Args:
       kelayakan_rendah (float): Derajat keanggotaan kelayakan rendah.
@@ -126,24 +127,31 @@
 
   Returns:
       float: Skor kelayakan hasil defuzzifikasi.
-  Exceptions:
-      Zero Division: jika hasil denominator sama dengan 0, keluarkan error ini.
-      Selain itu, keluarkan error untuk kondisi tak terduga lainnya saat melakukan defuzzifikasi.
   "
-  (handler-case
-      (let* ((numerator (+ (* kelayakan-rendah 30)
-                           (* kelayakan-sedang 60)
-                           (* kelayakan-tinggi 90)))
-             (denominator (+ kelayakan-rendah kelayakan-sedang kelayakan-tinggi)))
-        (/ numerator denominator))
-    (division-by-zero (e)
-      (format t "Selisih pembagi sama dengan 0, melakukan terminasi dengan mengembalikan nilai 0 (diluar jangkauan)...")
-      0)
-    (error (e)
-      (format t "Terjadi kesalahan saat defuzzifikasi: ~a" e)
-      0)
-    (t
-      (format t "Defuzzifikasi berhasil!"))))
+  ; Representasi domain output (kelayakan)
+  (let ((domain (loop for i from 0 to 100 collect i)))
+
+  ; Hitung output untuk setiap kategori
+  (let ((output-rendah (remove-if-not (lambda (x) (<= x 30)) domain))
+        (output-sedang (remove-if-not (lambda (x) (and (> x 30) (<= x 70))) domain))
+        (output-tinggi (remove-if-not (lambda (x) (> x 70)) domain)))
+
+  ; Dapatkan nilai keanggotaan untuk setiap kategori
+  (let ((keanggotaan-rendah kelayakan-rendah)
+        (keanggotaan-sedang kelayakan-sedang)
+        (keanggotaan-tinggi kelayakan-tinggi))
+
+    ; Cari nilai maksimum dari semua keanggotaan
+    (let ((max-keanggotaan (max keanggotaan-rendah keanggotaan-sedang keanggotaan-tinggi))
+          (max-output-values nil)) ; Ambil semua nilai domain yang memiliki keanggotaan maksimum
+      (dolist (domain-val domain)
+        (when (or (and (member domain-val output-rendah) (= keanggotaan-rendah max-keanggotaan))
+                  (and (member domain-val output-sedang) (= keanggotaan-sedang max-keanggotaan))
+                  (and (member domain-val output-tinggi) (= keanggotaan-tinggi max-keanggotaan)))
+          (push domain-val max-output-values)))
+      (if (null max-output-values) ; Jika tidak ada nilai maksimum, kembalikan nilai tengah
+          50
+        (/ (+ (car max-output-values) (car (last max-output-values))) 2))))))) ; Hitung rata-rata dari nilai-nilai output maksimum
 
 ; Kalau pakai lisp-xl, bikin fungsi konversi file.xlsx ke file.csv dan timpa disini
 
@@ -266,4 +274,4 @@
     (pilih-restoran-terbaik csv-file num-restaurant-selected output-csv-file)))
 
 ; Uncomment the following line to run the main function
- (main)
+(main)

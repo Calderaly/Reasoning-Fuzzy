@@ -115,35 +115,43 @@
                                  (apply #'max (gethash "SEDANG" rule-outputs))
                                  (apply #'max (gethash "TINGGI" rule-outputs)))))) ; Using cl-tuples for tuple creation
 
+; Function to perform defuzzification (using Weighted Fuzzy Mean method)
 (defun defuzzifikasi (kelayakan-rendah kelayakan-sedang kelayakan-tinggi)
   "
-  Melakukan defuzzifikasi menggunakan metode centroid.
+  Melakukan defuzzifikasi menggunakan metode Weighted Fuzzy Mean.
 
   Args:
-      kelayakan_rendah (float): Derajat keanggotaan kelayakan rendah.
-      kelayakan_sedang (float): Derajat keanggotaan kelayakan sedang.
-      kelayakan_tinggi (float): Derajat keanggotaan kelayakan tinggi.
+    kelayakan_rendah (float): Derajat keanggotaan kelayakan rendah.
+    kelayakan_sedang (float): Derajat keanggotaan kelayakan sedang.
+    kelayakan_tinggi (float): Derajat keanggotaan kelayakan tinggi.
 
   Returns:
-      float: Skor kelayakan hasil defuzzifikasi.
+    float: Skor kelayakan hasil defuzzifikasi.
+    
   Exceptions:
-      Zero Division: jika hasil denominator sama dengan 0, keluarkan error ini.
-      Selain itu, keluarkan error untuk kondisi tak terduga lainnya saat melakukan defuzzifikasi.
-  "
+    Zero Division: jika hasil denominator sama dengan 0, keluarkan error ini.
+    Selain itu, keluarkan error untuk kondisi tak terduga lainnya saat melakukan defuzzifikasi.
+    "
   (handler-case
-      (let* ((numerator (+ (* kelayakan-rendah 30)
-                           (* kelayakan-sedang 60)
-                           (* kelayakan-tinggi 90)))
+      (let* ((nilai-rendah 30)
+             (nilai-sedang 60)
+             (nilai-tinggi 90)
+             (numerator (+ (* kelayakan-rendah nilai-rendah)
+                           (* kelayakan-sedang nilai-sedang)
+                           (* kelayakan-tinggi nilai-tinggi)))
              (denominator (+ kelayakan-rendah kelayakan-sedang kelayakan-tinggi)))
-        (/ numerator denominator))
-    (division-by-zero (e)
-      (format t "Selisih pembagi sama dengan 0, melakukan terminasi dengan mengembalikan nilai 0 (diluar jangkauan)...")
-      0)
+        (if (zerop denominator)
+            (division-by-zero "Selisih pembagi sama dengan 0, " 
+            + " melakukan terminasi dengan mengembalikan nilai 50 (diluar jangkauan)...")
+          (/ numerator denominator))))
+    (division-by-zero (zde)
+      (format t "Penyebab error: ~a" (:error zde))
+      50) ; Mengembalikan nilai tengah jika tidak ada aturan yang aktif
     (error (e)
       (format t "Terjadi kesalahan saat defuzzifikasi: ~a" e)
       0)
     (t
-      (format t "Defuzzifikasi berhasil!"))))
+      (format t "Defuzzifikasi berhasil!")))
 
 ; Kalau pakai lisp-xl, bikin fungsi konversi file.xlsx ke file.csv dan timpa disini
 
@@ -266,4 +274,4 @@
     (pilih-restoran-terbaik csv-file num-restaurant-selected output-csv-file)))
 
 ; Uncomment the following line to run the main function
- (main)
+(main)

@@ -115,9 +115,51 @@
                                  (apply #'max (gethash "SEDANG" rule-outputs))
                                  (apply #'max (gethash "TINGGI" rule-outputs)))))) ; Using cl-tuples for tuple creation
 
+; Function to perform fuzzy inference
+(defun inferensi-fuzzy (kualitas-pelayanan-rendah kualitas-pelayanan-sedang kualitas-pelayanan-tinggi harga-murah harga-sedang harga-mahal)
+  "Perform fuzzy inference based on defined rules.
+
+  Args:
+      kualitas-pelayanan-rendah (float): Membership degree of low service quality.
+      kualitas-pelayanan-sedang (float): Membership degree of medium service quality.
+      kualitas-pelayanan-tinggi (float): Membership degree of high service quality.
+      harga-murah (float): Membership degree of cheap price.
+      harga-sedang (float): Membership degree of medium price.
+      harga-mahal (float): Membership degree of expensive price.
+
+  Returns:
+      tuple: Membership degree (kelayakan_rendah, kelayakan_sedang, kelayakan_tinggi)."
+  (let ((rule-outputs (make-hash-table))
+        (pelayanan-inputs (list (cons 'RENDAH kualitas-pelayanan-rendah)
+                                (cons 'SEDANG kualitas-pelayanan-sedang)
+                                (cons 'TINGGI kualitas-pelayanan-tinggi)))
+        (harga-inputs (list (cons 'MURAH harga-murah)
+                            (cons 'SEDANG harga-sedang)
+                            (cons 'MAHAL harga-mahal))))
+    (maphash (lambda (rule-num rule)
+               (let* ((pelayanan-condition (cdr (assoc 'pelayanan rule)))
+                      (harga-condition (cdr (assoc 'harga rule)))
+                      (kelayakan (cdr (assoc 'kelayakan rule))))
+                 (unless (gethash kelayakan rule-outputs)
+                   (setf (gethash kelayakan rule-outputs) '()))
+                 (if (member rule-num '(1 3 5 9)) ;; Rules using OR
+                     (push (max (cdr (assoc pelayanan-condition pelayanan-inputs))
+                                (cdr (assoc harga-condition harga-inputs)))
+                           (gethash kelayakan rule-outputs))
+                   ;; Rules using AND
+                   (push (min (cdr (assoc pelayanan-condition pelayanan-inputs))
+                              (cdr (assoc harga-condition harga-inputs)))
+                         (gethash kelayakan rule-outputs)))))
+             *fuzzy-rules*)
+    (cl-tuples:make-tuple 
+      (apply #'max (gethash 'RENDAH rule-outputs))
+      (apply #'max (gethash 'SEDANG rule-outputs))
+      (apply #'max (gethash 'TINGGI rule-outputs))))
+
+; Fungsi untuk melakukan defuzzifikasi (menggunakan metode Last of Maximum - LOM)
 (defun defuzzifikasi (kelayakan-rendah kelayakan-sedang kelayakan-tinggi)
   "
-  Melakukan defuzzifikasi menggunakan metode centroid.
+  Melakukan defuzzifikasi menggunakan metode Last of Maximum (LOM).
 
   Args:
       kelayakan_rendah (float): Derajat keanggotaan kelayakan rendah.
@@ -126,24 +168,37 @@
 
   Returns:
       float: Skor kelayakan hasil defuzzifikasi.
-  Exceptions:
-      Zero Division: jika hasil denominator sama dengan 0, keluarkan error ini.
-      Selain itu, keluarkan error untuk kondisi tak terduga lainnya saat melakukan defuzzifikasi.
   "
-  (handler-case
-      (let* ((numerator (+ (* kelayakan-rendah 30)
-                           (* kelayakan-sedang 60)
-                           (* kelayakan-tinggi 90)))
-             (denominator (+ kelayakan-rendah kelayakan-sedang kelayakan-tinggi)))
-        (/ numerator denominator))
-    (division-by-zero (e)
-      (format t "Selisih pembagi sama dengan 0, melakukan terminasi dengan mengembalikan nilai 0 (diluar jangkauan)...")
-      0)
-    (error (e)
-      (format t "Terjadi kesalahan saat defuzzifikasi: ~a" e)
-      0)
-    (t
-      (format t "Defuzzifikasi berhasil!"))))
+  ; Representasi domain output (kelayakan)
+  (let ((domain (loop for i from 0 to 100 collect i)))
+   ; Hitung output untuk setiap kategori
+   (let ((output-rendah (remove-if-not (lambda (val) (<= val 30)) domain))
+        (output-sedang (remove-if-not (lambda (val) (and (> val 30) (<= val 70))) domain))
+        (output-tinggi (remove-if-not (lambda (val) (> val 70)) domain)))
+   ; Dapatkan nilai keanggotaan untuk setiap kategori
+   (let ((keanggotaan-rendah kelayakan-rendah)
+        (keanggotaan-sedang kelayakan-sedang)
+        (keanggotaan-tinggi kelayakan-tinggi))
+   ; Cari nilai maksimum dari semua keanggotaan
+   (let ((max-keanggotaan (max keanggotaan-rendah keanggotaan-sedang keanggotaan-tinggi)))
+      ; Prioritaskan kategori dalam urutan: rendah, sedang, tinggi
+      (cond
+        ((= max-keanggotaan keanggotaan-tinggi)
+         (loop for i from (1- (length output-tinggi)) downto 0 ; Iterate in reverse
+               for val = (nth i output-tinggi)
+               when keanggotaan-tinggi
+               return val))
+        ((= max-keanggotaan keanggotaan-sedang)
+         (loop for i from (1- (length output-sedang)) downto 0
+               for val = (nth i output-sedang)
+               when keanggotaan-sedang
+               return val))
+        ((= max-keanggotaan keanggotaan-rendah)
+         (loop for i from (1- (length output-rendah)) downto 0
+               for val = (nth i output-rendah)
+               when keanggotaan-rendah
+               return val)))
+      50)))))
 
 ; Kalau pakai lisp-xl, bikin fungsi konversi file.xlsx ke file.csv dan timpa disini
 
@@ -266,4 +321,4 @@
     (pilih-restoran-terbaik csv-file num-restaurant-selected output-csv-file)))
 
 ; Uncomment the following line to run the main function
- (main)
+(main)

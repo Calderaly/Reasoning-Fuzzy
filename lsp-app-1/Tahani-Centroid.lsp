@@ -160,6 +160,8 @@
     (t 
       (format t "Defuzzifikasi berhasil!"))))
 
+; Kalau pakai openpyxl, bikin fungsi konversi file.xlsx ke file.csv dan timpa disini
+
 ; Fungsi untuk membaca data dari file CSV
 (defun read-csv-data (file-path)
   "
@@ -221,6 +223,8 @@
       (format t "Terjadi kesalahan saat menulis file CSV: ~a" e))
     (t
       (format t "Berhasil menyimpan data ke file CSV: ~a" file-path))))
+
+; Kalau pakai lisp-xl, bikin fungsi konversi file.csv ke file.xlsx dan timpa disini
 
 ; Fungsi untuk memilih restoran terbaik dari file CSV
 (defun pilih-restoran-terbaik (csv-file-path num-restoran output-file-path)

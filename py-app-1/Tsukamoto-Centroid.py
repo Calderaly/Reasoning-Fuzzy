@@ -144,6 +144,8 @@ def defuzzifikasi_centroid_tsukamoto(rule_outputs):
     else:
         print("Defuzzifikasi berhasil!")
 
+# Kalau pakai openpyxl, bikin fungsi konversi file.xlsx ke file.csv dan timpa disini
+
 def read_csv_data(file_path):
     """
     Membaca data dari file CSV.
@@ -201,6 +203,8 @@ def write_csv_data(file_path, data, header):
         print(f"Terjadi kesalahan saat menulis file CSV: {e}")
     else:
         print(f"Berhasil menyimpan data ke file CSV: {file_path}")
+
+# Kalau pakai openpyxl, bikin fungsi konversi file.csv ke file.xlsx dan timpa disini
 
 def sort_key(restoran):
     """Kunci sorting kustom."""

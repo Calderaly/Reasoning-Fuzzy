@@ -128,7 +128,7 @@ def inferensi_fuzzy(kualitas_pelayanan_rendah, kualitas_pelayanan_sedang, kualit
     
     return kelayakan_rendah, kelayakan_sedang, kelayakan_tinggi
 
-# Fungsi untuk melakukan defuzzifikasi (menggunakan metode Middle of Maximum - MOM)
+# Fungsi untuk melakukan defuzzifikasi (menggunakan metode Middle of Maximum - MiOM)
 def defuzzifikasi(kelayakan_rendah, kelayakan_sedang, kelayakan_tinggi):
     """
     Melakukan defuzzifikasi menggunakan metode Middle of Maximum (MOM).

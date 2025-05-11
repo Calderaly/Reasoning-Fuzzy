@@ -140,39 +140,52 @@ def defuzzifikasi(kelayakan_rendah, kelayakan_sedang, kelayakan_tinggi):
 
     Returns:
         float: Skor kelayakan hasil defuzzifikasi.
+    
+    Exceptions:
+        Zero Division: jika hasil denominator sama dengan 0, keluarkan error ini.
+        Selain itu, keluarkan error untuk kondisi tak terduga lainnya saat melakukan defuzzifikasi.
     """
-    # Representasi domain output (kelayakan)
-    domain = list(range(0, 101))
+    try:
+        # Representasi domain output (kelayakan)
+        domain = list(range(0, 101))
 
-    # Hitung output untuk setiap kategori
-    output_rendah = [domain_val for domain_val in domain if domain_val <= 30]
-    output_sedang = [domain_val for domain_val in domain if 30 < domain_val <= 70]
-    output_tinggi = [domain_val for domain_val in domain if domain_val > 70]
+        # Hitung output untuk setiap kategori
+        output_rendah = [domain_val for domain_val in domain if domain_val <= 30]
+        output_sedang = [domain_val for domain_val in domain if 30 < domain_val <= 70]
+        output_tinggi = [domain_val for domain_val in domain if domain_val > 70]
 
-    # Dapatkan nilai keanggotaan untuk setiap kategori
-    keanggotaan_rendah = kelayakan_rendah
-    keanggotaan_sedang = kelayakan_sedang
-    keanggotaan_tinggi = kelayakan_tinggi
+        # Dapatkan nilai keanggotaan untuk setiap kategori
+        keanggotaan_rendah = kelayakan_rendah
+        keanggotaan_sedang = kelayakan_sedang
+        keanggotaan_tinggi = kelayakan_tinggi
 
-    # Cari nilai maksimum dari setiap keanggotaan
-    max_keanggotaan_rendah = keanggotaan_rendah
-    max_keanggotaan_sedang = keanggotaan_sedang
-    max_keanggotaan_tinggi = keanggotaan_tinggi
+        # Cari nilai maksimum dari setiap keanggotaan
+        max_keanggotaan_rendah = keanggotaan_rendah
+        max_keanggotaan_sedang = keanggotaan_sedang
+        max_keanggotaan_tinggi = keanggotaan_tinggi
 
-    # Ambil semua nilai domain yang memiliki keanggotaan maksimum
-    max_output_rendah = [output_rendah[i] for i, val in enumerate(output_rendah) if max_keanggotaan_rendah]
-    max_output_sedang = [output_sedang[i] for i, val in enumerate(output_sedang) if max_keanggotaan_sedang]
-    max_output_tinggi = [output_tinggi[i] for i, val in enumerate(output_tinggi) if max_keanggotaan_tinggi]
+        # Ambil semua nilai domain yang memiliki keanggotaan maksimum
+        max_output_rendah = [output_rendah[i] for i, val in enumerate(output_rendah) if max_keanggotaan_rendah]
+        max_output_sedang = [output_sedang[i] for i, val in enumerate(output_sedang) if max_keanggotaan_sedang]
+        max_output_tinggi = [output_tinggi[i] for i, val in enumerate(output_tinggi) if max_keanggotaan_tinggi]
 
-    # Gabungkan semua nilai output yang memiliki keanggotaan maksimum
-    max_output_values = max_output_rendah + max_output_sedang + max_output_tinggi
+        # Gabungkan semua nilai output yang memiliki keanggotaan maksimum
+        max_output_values = max_output_rendah + max_output_sedang + max_output_tinggi
 
-    # Jika tidak ada nilai maksimum, kembalikan nilai tengah
-    if not max_output_values:
-        return 50
+        # Jika tidak ada nilai maksimum, kembalikan nilai tengah
+        if not max_output_values:
+            return 50
+        else:
+            # Hitung rata-rata dari nilai-nilai output maksimum
+            return sum(max_output_values) / len(max_output_values)
+    except ZeroDivisionError:
+        print("Selisih pembagi sama dengan 0, melakukan terminasi dengan mengembalikan nilai 0 (diluar jangkauan)...")
+        return 0
+    except Exception as e:
+        print(f"Terjadi kesalahan saat defuzzifikasi: {e}")
+        return 0
     else:
-        # Hitung rata-rata dari nilai-nilai output maksimum
-        return sum(max_output_values) / len(max_output_values)
+        print("Defuzzifikasi berhasil!")
 
 # Kalau pakai openpyxl, bikin fungsi konversi file.xlsx ke file.csv dan timpa disini
 

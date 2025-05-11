@@ -173,7 +173,7 @@ def defuzzifikasi(rule_outputs):
     else:
         print("Defuzzifikasi berhasil!")
 
-
+# Kalau pakai openpyxl, bikin fungsi konversi file.xlsx ke file.csv dan timpa disini
 
 # Fungsi untuk membaca data dari file CSV
 def read_csv_data(file_path):
@@ -235,6 +235,8 @@ def write_csv_data(file_path, data, header):
         print(f"Terjadi kesalahan saat menulis file CSV: {e}")
     else:
         print(f"Berhasil menyimpan data ke file CSV: {file_path}")
+
+# Kalau pakai openpyxl, bikin fungsi konversi file.csv ke file.xlsx dan timpa disini
 
 # Fungsi untuk memilih restoran terbaik dari file CSV
 def pilih_restoran_terbaik(csv_file_path, num_restoran, output_file_path):

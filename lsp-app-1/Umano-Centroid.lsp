@@ -235,6 +235,8 @@
     (t
       (format t "Defuzzifikasi berhasil!~%"))))
 
+; Kalau pakai lisp-xl, bikin fungsi konversi file.xlsx ke file.csv dan timpa disini
+
 ; Fungsi untuk membaca data dari file CSV
 (defun read-csv-data (file-path)
   "
@@ -272,6 +274,8 @@
       nil)
     (t
       (format t "Berhasil membaca file CSV: ~a" file-path))))
+
+; Kalau pakai lisp-xl, bikin fungsi konversi file.csv ke file.xlsx dan timpa disini
 
 ; Fungsi untuk menulis data ke file CSV
 (defun write-csv-data (file-path data header)

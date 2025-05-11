@@ -29,6 +29,8 @@ def triangular(x, a, b, c):
         return 0
     except Exception as e:
         print(e)
+    else:
+        print("Berhasil menghitung derajat keanggotaan!")
 
 def kualitas_pelayanan_fuzzy(pelayanan):
     """
@@ -86,7 +88,7 @@ harga_mahal):
         harga_mahal (float): Derajat keanggotaan harga mahal.
 
     Returns:
-        tuple: Derajat keanggotaan (kelayakan_rendah, kelayakan_sedang, kelayakan_tinggi).
+        list of tuple: Derajat keanggotaan (kelayakan_rendah, kelayakan_sedang, kelayakan_tinggi).
     """
     rule_outputs = {}
 
@@ -134,7 +136,8 @@ def defuzzifikasi(kelayakan_rendah, kelayakan_sedang, kelayakan_tinggi):
     Returns:
         float: Skor kelayakan hasil defuzzifikasi.
     Exceptions:
-        Zero Division: jika hasil denominator sama dengan 0, keluarkan error ini
+        Zero Division: jika hasil denominator sama dengan 0, keluarkan error ini.
+        Selain itu, keluarkan error untuk kondisi tak terduga lainnya saat melakukan defuzzifikasi.
     """
     try:
         numerator = (kelayakan_rendah * 30) + (kelayakan_sedang * 60) + (kelayakan_tinggi * 90)
@@ -265,7 +268,7 @@ def pilih_restoran_terbaik(csv_file_path, num_restoran, output_file_path):
 
     print(f"\n{num_restoran} Restoran Terbaik:")
     for restoran in restoran_terbaik:
-        print(f"ID: {restoran['id_restoran']}, Kualitas Servis: {restoran['pelayanan']:.2f}, Harga: {restoran['harga']:.2f}, 
+        print(f"ID: {restoran['id_restoran']}, Kualitas Pelayanan: {restoran['pelayanan']:.2f}, Harga: {restoran['harga']:.2f}, 
         Skor Kelayakan: {restoran['skor_kelayakan']:.2f}")
 
 #Program Utama

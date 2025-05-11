@@ -14,13 +14,25 @@ def triangular(x, a, b, c):
 
     Returns:
         float: Derajat keanggotaan.
+    
+    Exception:
+        Zero Division: Jika selisih (b - a) dan atau (c - b) sama dengan 0, keluarkan error ini. 
+        Selain itu, keluarkan error untuk kondisi tak terduga lainnya saat menghitung derajat keanggotaan.
     """
-    if a <= x <= b:
-        return (x - a) / (b - a)
-    elif b < x <= c:
-        return (c - x) / (c - b)
-    else:
+    try:
+        if a <= x <= b:
+            return (x - a) / (b - a)
+        elif b < x <= c:
+            return (c - x) / (c - b)
+        else:
+            return 0
+    except ZeroDivisionError:
+        print("Selisih pembagi sama dengan 0, melakukan terminasi dengan mengembalikan nilai 0 (diluar jangkauan)...")
         return 0
+    except Exception as e:
+        print(e)
+    else:
+        print("Berhasil menghitung derajat keanggotaan!")
 
 # Fungsi untuk menghitung derajat keanggotaan untuk kualitas pelayanan
 def kualitas_pelayanan_fuzzy(pelayanan):
@@ -82,7 +94,7 @@ harga_mahal):
         harga_mahal (float): Derajat keanggotaan harga mahal.
 
     Returns:
-        list: List of tuple berisi bobot aturan dan himpunan fuzzy outputnya.
+        list of tuple: berisi bobot aturan dan himpunan fuzzy outputnya.
     """
     rule_outputs = []
 
@@ -126,25 +138,40 @@ def defuzzifikasi(rule_outputs):
 
     Returns:
         float: Skor kelayakan hasil defuzzifikasi.
+    
+    Exceptions:
+        Zero Division: jika hasil denominator sama dengan 0, keluarkan error ini.
+        Selain itu, keluarkan error untuk kondisi tak terduga lainnya saat melakukan defuzzifikasi.
     """
-    numerator = 0
-    denominator = 0
 
-    for weight, output_fuzzy_set in rule_outputs:
-        a = output_fuzzy_set['a']
-        b = output_fuzzy_set['b']
-        c = output_fuzzy_set['c']
+    try:
+        numerator = 0
+        denominator = 0
 
-        # Calculate the centroid of the triangular fuzzy set
-        centroid = (a + b + c) / 3
+        for weight, output_fuzzy_set in rule_outputs:
+            a = output_fuzzy_set['a']
+            b = output_fuzzy_set['b']
+            c = output_fuzzy_set['c']
 
-        numerator += weight * centroid
-        denominator += weight
+            # Calculate the centroid of the triangular fuzzy set
+            centroid = (a + b + c) / 3
 
-    if denominator == 0:
-        return 50  # Mengembalikan nilai tengah jika tidak ada aturan yang aktif
+            numerator += weight * centroid
+            denominator += weight
+
+        if denominator == 0:
+            raise ZeroDivisionError("Selisih pembagi sama dengan 0, melakukan terminasi dengan mengembalikan nilai 50 "
+            + "(diluar jangkauan)...")
+        else:
+            return numerator / denominator
+    except ZeroDivisionError as zde:
+        print(f"Penyebab error: {zde.args}")
+        return 50 # Mengembalikan nilai tengah jika tidak ada aturan yang aktif
+    except Exception as e:
+        print(f"Terjadi kesalahan saat defuzzifikasi: {e}")
+        return 0
     else:
-        return numerator / denominator
+        print("Defuzzifikasi berhasil!")
 
 
 
@@ -159,6 +186,10 @@ def read_csv_data(file_path):
     Returns:
         list: List of dictionaries, di mana setiap dictionary merepresentasikan satu baris data.
               Mengembalikan None jika terjadi kesalahan.
+    
+    Exceptions:
+        File not found: Jika file akan dibaca (dari input) tidak ada, maka keluarkan error ini. 
+        Selain itu, keluarkan error untuk kondisi tak terduga lainnya saat membaca file CSV.
     """
     try:
         data = []
@@ -177,6 +208,8 @@ def read_csv_data(file_path):
     except Exception as e:
         print(f"Terjadi kesalahan saat membaca file CSV: {e}")
         return None
+    else:
+        print(f"Berhasil membaca file CSV: {file_path}")
 
 # Fungsi untuk menulis data ke file CSV
 def write_csv_data(file_path, data, header):
@@ -187,6 +220,9 @@ def write_csv_data(file_path, data, header):
         file_path (str): Path ke file CSV yang akan dibuat.
         data (list): List of dictionaries yang akan ditulis ke file CSV.
         header (list): List dari string yang merupakan header dari CSV.
+    
+    Exceptions:
+        Keluarkan error untuk kondisi tak terduga saat menulis (membuat) file CSV.
     """
     try:
         with open(file_path, 'w', newline='') as csvfile:
@@ -197,6 +233,8 @@ def write_csv_data(file_path, data, header):
         print(f"Berhasil menyimpan data ke file CSV: {file_path}")
     except Exception as e:
         print(f"Terjadi kesalahan saat menulis file CSV: {e}")
+    else:
+        print(f"Berhasil menyimpan data ke file CSV: {file_path}")
 
 # Fungsi untuk memilih restoran terbaik dari file CSV
 def pilih_restoran_terbaik(csv_file_path, num_restoran, output_file_path):
@@ -242,11 +280,10 @@ def pilih_restoran_terbaik(csv_file_path, num_restoran, output_file_path):
 
     print("\n5 Restoran Terbaik:")
     for restoran in restoran_terbaik:
-        print(f"ID: {restoran['id_restoran']}, Kualitas Servis: {restoran['pelayanan']:.2f}, Harga: {restoran['harga']:.2f}, 
+        print(f"ID: {restoran['id_restoran']}, Kualitas Pelayanan: {restoran['pelayanan']:.2f}, Harga: {restoran['harga']:.2f}, 
         Skor Kelayakan: {restoran['skor_kelayakan']:.2f}")
 
-
-
+# Program Utama
 if __name__ == "__main__":
     csv_file = "restoran.csv"  # Input CSV file
     output_csv_file = "peringkat.csv" # Output CSV file

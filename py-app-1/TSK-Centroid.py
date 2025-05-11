@@ -14,12 +14,20 @@ def triangular(x, a, b, c):
     Returns:
         float: Derajat keanggotaan.
     """
-    if a <= x <= b:
-        return (x - a) / (b - a)
-    elif b < x <= c:
-        return (c - x) / (c - b)
-    else:
+    try:
+        if a <= x <= b:
+            return (x - a) / (b - a)
+        elif b < x <= c:
+            return (c - x) / (c - b)
+        else:
+            return 0
+    except ZeroDivisionError:
+        print("Selisih pembagi sama dengan 0, melakukan terminasi dengan mengembalikan nilai 0 (diluar jangkauan)...")
         return 0
+    except Exception as e:
+        print(e)
+    else:
+        print("Berhasil menghitung derajat keanggotaan!")
 
 # Fungsi untuk menghitung derajat keanggotaan untuk kualitas pelayanan
 def kualitas_pelayanan_fuzzy(pelayanan):
@@ -31,6 +39,10 @@ def kualitas_pelayanan_fuzzy(pelayanan):
 
     Returns:
         tuple: Derajat keanggotaan (rendah, sedang, tinggi).
+    
+    Exception:
+        Zero Division: Jika selisih (b - a) dan atau (c - b) sama dengan 0, keluarkan error ini. 
+        Selain itu, keluarkan error untuk kondisi tak terduga lainnya saat menghitung derajat keanggotaan.
     """
     rendah = triangular(pelayanan, 0, 20, 50)
     sedang = triangular(pelayanan, 20, 50, 80)
@@ -83,7 +95,7 @@ harga_mahal, pelayanan, harga):
         harga (float): Nilai crisp harga
 
     Returns:
-        list: List of tuple berisi bobot aturan dan nilai output crispnya
+        list of tuple: berisi bobot aturan dan nilai output crispnya
     """
     rule_outputs = []
 
@@ -128,18 +140,32 @@ def defuzzifikasi(rule_outputs):
 
     Returns:
         float: Skor kelayakan hasil defuzzifikasi.
+    
+    Exceptions:
+        Zero Division: jika hasil denominator sama dengan 0, keluarkan error ini.
+        Selain itu, keluarkan error untuk kondisi tak terduga lainnya saat melakukan defuzzifikasi.
     """
-    numerator = 0
-    denominator = 0
+    try:    
+        numerator = 0
+        denominator = 0
 
-    for weight, output_value in rule_outputs:
-        numerator += weight * output_value
-        denominator += weight
+        for weight, output_value in rule_outputs:
+            numerator += weight * output_value
+            denominator += weight
 
-    if denominator == 0:
-        return 50  # Mengembalikan nilai tengah jika tidak ada aturan yang aktif
+        if denominator == 0:
+            raise ZeroDivisionError("Selisih pembagi sama dengan 0, melakukan terminasi dengan mengembalikan nilai 50 "
+            + "(diluar jangkauan)...")
+        else:
+            return numerator / denominator
+    except ZeroDivisionError as zde:
+        print(f"Penyebab error: {zde.args}")
+        return 50 # Mengembalikan nilai tengah jika tidak ada aturan yang aktif
+    except Exception as e:
+        print(f"Terjadi kesalahan saat defuzzifikasi: {e}")
+        return 0
     else:
-        return numerator / denominator
+        print("Defuzzifikasi berhasil!")
 
 # Fungsi untuk membaca data dari file CSV
 def read_csv_data(file_path):
@@ -152,6 +178,10 @@ def read_csv_data(file_path):
     Returns:
         list: List of dictionaries, di mana setiap dictionary merepresentasikan satu baris data.
               Mengembalikan None jika terjadi kesalahan.
+    
+    Exceptions:
+        File not found: Jika file akan dibaca (dari input) tidak ada, maka keluarkan error ini. 
+        Selain itu, keluarkan error untuk kondisi tak terduga lainnya saat membaca file CSV.
     """
     try:
         data = []
@@ -170,6 +200,8 @@ def read_csv_data(file_path):
     except Exception as e:
         print(f"Terjadi kesalahan saat membaca file CSV: {e}")
         return None
+    else:
+        print(f"Berhasil membaca file CSV: {file_path}")
 
 # Fungsi untuk menulis data ke file CSV
 def write_csv_data(file_path, data, header):
@@ -180,6 +212,9 @@ def write_csv_data(file_path, data, header):
         file_path (str): Path ke file CSV yang akan dibuat.
         data (list): List of dictionaries yang akan ditulis ke file CSV.
         header (list): List dari string yang merupakan header dari CSV.
+    
+    Exceptions:
+        Keluarkan error untuk kondisi tak terduga saat menulis (membuat) file CSV.
     """
     try:
         with open(file_path, 'w', newline='') as csvfile:
@@ -190,6 +225,8 @@ def write_csv_data(file_path, data, header):
         print(f"Berhasil menyimpan data ke file CSV: {file_path}")
     except Exception as e:
         print(f"Terjadi kesalahan saat menulis file CSV: {e}")
+    else:
+        print(f"Berhasil menyimpan data ke file CSV: {file_path}")
 
 # Fungsi untuk memilih restoran terbaik dari file CSV
 def pilih_restoran_terbaik(csv_file_path, num_restoran, output_file_path):
@@ -235,7 +272,7 @@ def pilih_restoran_terbaik(csv_file_path, num_restoran, output_file_path):
 
     print("\n5 Restoran Terbaik:")
     for restoran in restoran_terbaik:
-        print(f"ID: {restoran['id_restoran']}, Kualitas Servis: {restoran['pelayanan']:.2f}, Harga: {restoran['harga']:.2f}, 
+        print(f"ID: {restoran['id_restoran']}, Kualitas Pelayanan: {restoran['pelayanan']:.2f}, Harga: {restoran['harga']:.2f}, 
         Skor Kelayakan: {restoran['skor_kelayakan']:.2f}")
 
 

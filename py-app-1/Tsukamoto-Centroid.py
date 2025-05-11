@@ -29,6 +29,8 @@ def triangular(x, a, b, c):
         return 0
     except Exception as e:
         print(e)
+    else:
+        print("Berhasil menghitung derajat keanggotaan!")
 
 def kualitas_pelayanan_fuzzy(pelayanan):
     """
@@ -123,16 +125,17 @@ def defuzzifikasi_centroid_tsukamoto(rule_outputs):
     Returns:
         float: Skor kelayakan hasil defuzzifikasi.
     Exceptions:
-        Zero Division: jika hasil denominator sama dengan 0, keluarkan error ini
+        Zero Division: jika hasil denominator sama dengan 0, keluarkan error ini.
+        Selain itu, keluarkan error untuk kondisi tak terduga lainnya saat melakukan defuzzifikasi.
     """
     try:
         numerator = sum(alpha * crisp_value for alpha, crisp_value in rule_outputs)
         denominator = sum(alpha for alpha, _ in rule_outputs)
         if denominator == 0:
-            raise ZeroDivisionError
+            raise ZeroDivisionError("Nilai pembagi sama dengan 0 pada proses defuzzifikasi, mengembalikan nilai 0.")
         return numerator / denominator
-    except ZeroDivisionError:
-        print("Nilai pembagi sama dengan 0 pada proses defuzzifikasi, mengembalikan nilai 0.")
+    except ZeroDivisionError as zde:
+        print(f"Penyebab error: {zde.args}")
         return 0
     except Exception as e:
         print(f"Terjadi kesalahan saat defuzzifikasi: {e}")
@@ -150,6 +153,7 @@ def read_csv_data(file_path):
     Returns:
         list: List of dictionaries, di mana setiap dictionary merepresentasikan satu baris data.
              Mengembalikan None jika terjadi kesalahan.
+    
     Exceptions:
         File not found: Jika file akan dibaca (dari input) tidak ada, maka keluarkan error ini.
         Selain itu, keluarkan error untuk kondisi tak terduga lainnya saat membaca file CSV.
@@ -250,7 +254,7 @@ def pilih_restoran_terbaik_tsukamoto(csv_file_path, num_restoran, output_file_pa
 
     print(f"\n{num_restoran} Restoran Terbaik (Tsukamoto):")
     for restoran in restoran_terbaik:
-        print(f"ID: {restoran['id_restoran']}, Kualitas Servis: {restoran['pelayanan']:.2f}, Harga: {restoran['harga']:.2f}, Skor Kelayakan: {restoran['skor_kelayakan']:.2f}")
+        print(f"ID: {restoran['id_restoran']}, Kualitas Pelayanan: {restoran['pelayanan']:.2f}, Harga: {restoran['harga']:.2f}, Skor Kelayakan: {restoran['skor_kelayakan']:.2f}")
 
 # Program Utama
 if __name__ == "__main__":

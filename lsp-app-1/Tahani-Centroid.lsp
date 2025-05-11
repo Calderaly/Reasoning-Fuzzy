@@ -152,7 +152,7 @@
                 + "(diluar jangkauan)...")
             (/ numerator denominator)))
     (division-by-zero (zde)
-      (format t "Penyebab error: ~a" (zde-args zde))
+      (format t "Penyebab error: ~a" (:error zde))
       50)  ; Mengembalikan nilai tengah jika tidak ada aturan yang aktif
     (error (e)
       (format t "Terjadi kesalahan saat defuzzifikasi: ~a" e)
@@ -246,9 +246,9 @@
             (multiple-value-bind (harga-murah harga-sedang harga-mahal)
                 (harga-fuzzy harga)
               (let ((rule-outputs (inferensi-fuzzy kualitas-pelayanan-rendah kualitas-pelayanan-sedang kualitas-pelayanan-tinggi
-                                                    harga-murah harga-sedang harga-mahal))
-                    (skor-kelayakan (defuzzifikasi rule-outputs)))
-                (push `((id-restoran . ,id-restoran)
+                                                    harga-murah harga-sedang harga-mahal)))
+              (let ((skor-kelayakan (defuzzifikasi rule-outputs)))
+                (push '((id-restoran . ,id-restoran)
                          (pelayanan . ,pelayanan)
                          (harga . ,harga)
                          (skor-kelayakan . ,skor-kelayakan))
@@ -256,14 +256,14 @@
       (let ((hasil-restoran-sorted (sort hasil-restoran #'> :key (lambda (x) (getf x 'skor-kelayakan)))))
         (let ((restoran-terbaik (subseq hasil-restoran-sorted 0 num-restoran)))
           (let ((header '("id_restoran" "pelayanan" "harga" "skor_kelayakan")))
-            (write-csv-data output-file-path restoran-terbaik header))
+            (write-csv-data output-file-path restoran-terbaik header)
           (format t "~%5 Best Restaurants:")
           (dolist (restoran restoran-terbaik)
-            (format t "ID: ~a, Service Quality: ~a, Price: ~a, Feasibility Score: ~a"
+            (format t "ID: ~a, Kualitas Pelayanan: ~a, Harga: ~a, Skor Kelayakan: ~a"
                     (getf restoran 'id_restoran)
                     (getf restoran 'pelayanan)
                     (getf restoran 'harga)
-                    (getf restoran 'skor-kelayakan))))))))
+                    (getf restoran 'skor-kelayakan)))))))))
 
 ; Program Utama
 (defun main ()
@@ -273,4 +273,5 @@
     ; Proses Fuzzy dan dapatkan restoran terbaik dari CSV
     (pilih-restoran-terbaik csv-file num-restoran output-csv-file)))
 
+; Uncomment the following line to run the main function
 (main)

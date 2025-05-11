@@ -113,7 +113,7 @@
     ; Menggabungkan output dari setiap aturan untuk mendapatkan derajat keanggotaan akhir, lalu kembalikan hasilnya
     (cl-tuples:make-tuple (list (apply #'max (gethash "RENDAH" rule-outputs))
                                  (apply #'max (gethash "SEDANG" rule-outputs))
-                                 (apply #'max (gethash "TINGGI" rule-outputs))))) ; Using cl-tuples for tuple creation
+                                 (apply #'max (gethash "TINGGI" rule-outputs)))))) ; Using cl-tuples for tuple creation
 
 (defun defuzzifikasi (kelayakan-rendah kelayakan-sedang kelayakan-tinggi)
   "
@@ -208,7 +208,7 @@
 
 (defun sort-key (restoran)
   "Custom sorting key."
-  (list (- (getf restoran 'skor_kelayakan)) ; Urutkan skor kelayakan dari tertinggi
+  (list (- (getf restoran 'skor-kelayakan)) ; Urutkan skor kelayakan dari tertinggi
         (- (getf restoran 'pelayanan))    ; Urutkan pelayanan dari tertinggi
         (getf restoran 'harga)))        ; Urutkan harga dari terendah
 
@@ -230,30 +230,30 @@
         (return))
     (let ((hasil-restoran '()))
       (dolist (row data)
-        (let* ((id-restoran (getf row 'id_Pelanggan))
+        (let* ((id-restoran (getf row 'Id-pelanggan))
                (pelayanan (getf row 'Pelayanan))
-               (harga (getf row 'harga))
+               (harga (getf row 'Harga))
                (kualitas-pelayanan-rendah (kualitas-pelayanan-fuzzy pelayanan))
                (harga-murah (harga-fuzzy harga))
                (kelayakan (inferensi-fuzzy kualitas-pelayanan-rendah harga-murah)))
           (let ((skor-kelayakan (defuzzifikasi (first kelayakan) (second kelayakan) (third kelayakan))))
-            (push (list 'id_restoran id-restoran
+            (push (list 'id-restoran id-restoran
                         'pelayanan pelayanan
                         'harga harga
-                        'skor_kelayakan skor-kelayakan)
-                  hasil-restoran)))))
+                        'skor-kelayakan skor-kelayakan)
+                  hasil-restoran))))
       ; Urutkan restoran menggunakan kunci sorting kustom
-      (let ((restoran-terbaik (subseq (sort hasil-restoran #'sort-key) 0 num-restoran)))
-        (let ((header '(id_restoran pelayanan harga skor_kelayakan)))
+      (let ((restoran-terbaik (subseq (sort hasil-restoran #'sort-key) 0 num-restoran)))))
+        (let ((header '("id_restoran" "pelayanan" "harga" "skor_kelayakan")))
           (write-csv-data output-file-path restoran-terbaik header))
         ; Apabila menggunakan file excel, panggil fungsi untuk konversi file.csv ke file.xlsx dan timpa komentar ini
         (format t "~%~a Restoran Terbaik:" num-restoran)
         (dolist (restoran restoran-terbaik)
           (format t "ID: ~a, Kualitas Pelayanan: ~a, Harga: ~a, Skor Kelayakan: ~a"
-                  (getf restoran 'id_restoran)
+                  (getf restoran 'id-restoran)
                   (getf restoran 'pelayanan)
                   (getf restoran 'harga)
-                  (getf restoran 'skor_kelayakan)))))))
+                  (getf restoran 'skor-kelayakan)))))
 
 ; Program Utama
 (defun main ()

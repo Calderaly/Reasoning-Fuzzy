@@ -23,7 +23,7 @@ CMD ["/usr/bin/supervisord", "-c", "/etc/supervisor/supervisord.conf"]
 # Labeling image
 LABEL maintainer="Fa Ainama Caldera S <faainamacaldera16@gmail.com>"
 LABEL version="1.0"
-LABEL description="A simple Python and Common Lisp (Steel Bank) GA search application"
+LABEL description="A simple Python and Common Lisp (Steel Bank) Fuzzy Reasoning application"
 
 #FROM python:3.12-slim
 # Install Common Lisp
@@ -38,4 +38,4 @@ LABEL description="A simple Python and Common Lisp (Steel Bank) GA search applic
 # Labeling image
 #LABEL maintainer="Fa Ainama Caldera S <faainamacaldera16@gmail.com>"
 #LABEL version="1.0"
-#LABEL description="A simple Python and Common Lisp (Steel Bank) GA search application"
+#LABEL description="A simple Python and Common Lisp (Steel Bank) Fuzzy Reasoning application"

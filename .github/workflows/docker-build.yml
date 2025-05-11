@@ -36,4 +36,4 @@ jobs:
         if: failure()
         run: |
           # nama container sesuai dengan docker-compose.yml kamu
-          docker logs python-fuzzy || true
+          docker logs general-fuzzy-logic || true

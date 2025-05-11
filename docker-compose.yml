@@ -9,5 +9,5 @@ services:
     build:
       context: .
     image: calderaly/ga-search:latest
-    container_name: python-fuzzy
+    container_name: general-fuzzy-logic
     command: /bin/bash -c "python main.py && sbcl --load main.lsp"

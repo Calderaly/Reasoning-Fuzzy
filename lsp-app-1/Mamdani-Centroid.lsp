@@ -207,7 +207,7 @@
       (format t "Berhasil menyimpan data ke file CSV: ~a" file-path))))
 
 (defun sort-key (restoran)
-  "Custom sorting key."
+  "Kunci sorting kustom."
   (list (- (getf restoran 'skor-kelayakan)) ; Urutkan skor kelayakan dari tertinggi
         (- (getf restoran 'pelayanan))    ; Urutkan pelayanan dari tertinggi
         (getf restoran 'harga)))        ; Urutkan harga dari terendah
@@ -243,7 +243,7 @@
                         'skor-kelayakan skor-kelayakan)
                   hasil-restoran))))
       ; Urutkan restoran menggunakan kunci sorting kustom
-      (let ((restoran-terbaik (subseq (sort hasil-restoran #'sort-key) 0 num-restoran)))))
+      (let ((restoran-terbaik (subseq (sort hasil-restoran #'sort-key) 0 num-restoran)))
         (let ((header '("id_restoran" "pelayanan" "harga" "skor_kelayakan")))
           (write-csv-data output-file-path restoran-terbaik header))
         ; Apabila menggunakan file excel, panggil fungsi untuk konversi file.csv ke file.xlsx dan timpa komentar ini
@@ -253,7 +253,7 @@
                   (getf restoran 'id-restoran)
                   (getf restoran 'pelayanan)
                   (getf restoran 'harga)
-                  (getf restoran 'skor-kelayakan)))))
+                  (getf restoran 'skor-kelayakan)))))))
 
 ; Program Utama
 (defun main ()

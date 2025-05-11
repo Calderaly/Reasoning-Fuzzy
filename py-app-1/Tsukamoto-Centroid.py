@@ -132,7 +132,8 @@ def defuzzifikasi_centroid_tsukamoto(rule_outputs):
         numerator = sum(alpha * crisp_value for alpha, crisp_value in rule_outputs)
         denominator = sum(alpha for alpha, _ in rule_outputs)
         if denominator == 0:
-            raise ZeroDivisionError("Nilai pembagi sama dengan 0 pada proses defuzzifikasi, mengembalikan nilai 0.")
+            raise ZeroDivisionError("Nilai pembagi sama dengan 0 pada proses defuzzifikasi, " 
+            + " mengembalikan nilai 0.")
         return numerator / denominator
     except ZeroDivisionError as zde:
         print(f"Penyebab error: {zde.args}")

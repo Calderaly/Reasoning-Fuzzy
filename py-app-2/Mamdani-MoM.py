@@ -160,9 +160,9 @@ def defuzzifikasi(kelayakan_rendah, kelayakan_sedang, kelayakan_tinggi):
     max_keanggotaan_tinggi = keanggotaan_tinggi
 
     # Ambil semua nilai domain yang memiliki keanggotaan maksimum
-    max_output_rendah = [output_rendah[i] for i, val in enumerate(output_rendah) if keanggotaan_rendah]
-    max_output_sedang = [output_sedang[i] for i, val in enumerate(output_sedang) if keanggotaan_sedang]
-    max_output_tinggi = [output_tinggi[i] for i, val in enumerate(output_tinggi) if keanggotaan_tinggi]
+    max_output_rendah = [output_rendah[i] for i, val in enumerate(output_rendah) if max_keanggotaan_rendah]
+    max_output_sedang = [output_sedang[i] for i, val in enumerate(output_sedang) if max_keanggotaan_sedang]
+    max_output_tinggi = [output_tinggi[i] for i, val in enumerate(output_tinggi) if max_keanggotaan_tinggi]
 
     # Gabungkan semua nilai output yang memiliki keanggotaan maksimum
     max_output_values = max_output_rendah + max_output_sedang + max_output_tinggi

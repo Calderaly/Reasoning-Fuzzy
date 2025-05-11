@@ -154,8 +154,8 @@ def defuzzifikasi(rule_outputs):
             denominator += weight
 
         if denominator == 0:
-            raise ZeroDivisionError("Selisih pembagi sama dengan 0, melakukan terminasi dengan mengembalikan nilai 50 "
-            + "(diluar jangkauan)...")
+           raise ZeroDivisionError("Selisih pembagi sama dengan 0, " 
+            + " melakukan terminasi dengan mengembalikan nilai 50 (diluar jangkauan)...")
         else:
             return numerator / denominator
     except ZeroDivisionError as zde:

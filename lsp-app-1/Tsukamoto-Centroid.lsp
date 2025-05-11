@@ -132,8 +132,8 @@
       (let ((numerator (reduce #'+ (mapcar (lambda (x) (* (car x) (cdr x))) rule-outputs)))
             (denominator (reduce #'+ (mapcar #'car rule-outputs))))
         (if (zerop denominator)
-            (division-by-zero "Selisih pembagi sama dengan 0, melakukan terminasi dengan mengembalikan nilai 0"
-                + "(diluar jangkauan)...")
+            (division-by-zero "Selisih pembagi sama dengan 0, " 
+              + " melakukan terminasi dengan mengembalikan nilai 50  (diluar jangkauan)...")
             (/ numerator denominator)))
     (division-by-zero (zde)
       (format t "Penyebab error: ~a" (:error zde))

@@ -140,21 +140,35 @@ def defuzzifikasi(kelayakan_rendah, kelayakan_sedang, kelayakan_tinggi):
 
     Returns:
         float: Skor kelayakan hasil defuzzifikasi.
+    
+    Exceptions:
+        Zero Division: jika hasil denominator sama dengan 0, keluarkan error ini.
+        Selain itu, keluarkan error untuk kondisi tak terduga lainnya saat melakukan defuzzifikasi.
     """
-    # Tentukan nilai representatif untuk setiap kategori (kelayakan)
-    # Nilai-nilai ini harus sesuai dengan domain yang relevan (misalnya, 0-100 untuk kelayakan)
-    nilai_rendah = 30
-    nilai_sedang = 60
-    nilai_tinggi = 90
+    try:
+        # Tentukan nilai representatif untuk setiap kategori (kelayakan)
+        # Nilai-nilai ini harus sesuai dengan domain yang relevan (misalnya, 0-100 untuk kelayakan)
+        nilai_rendah = 30
+        nilai_sedang = 60
+        nilai_tinggi = 90
 
-    # Hitung numerator dan denominator untuk rata-rata tertimbang
-    numerator = (kelayakan_rendah * nilai_rendah) + (kelayakan_sedang * nilai_sedang) + (kelayakan_tinggi * nilai_tinggi)
-    denominator = kelayakan_rendah + kelayakan_sedang + kelayakan_tinggi
+        # Hitung numerator dan denominator untuk rata-rata tertimbang
+        numerator = (kelayakan_rendah * nilai_rendah) + (kelayakan_sedang * nilai_sedang) + (kelayakan_tinggi * nilai_tinggi)
+        denominator = kelayakan_rendah + kelayakan_sedang + kelayakan_tinggi
 
-    if denominator == 0:
-        return 50  # Mengembalikan nilai tengah jika tidak ada aturan yang aktif
+        if denominator == 0:
+            raise ZeroDivisionError("Selisih pembagi sama dengan 0, " 
+            + " melakukan terminasi dengan mengembalikan nilai 50 (diluar jangkauan)...")
+        else:
+            return numerator / denominator
+    except ZeroDivisionError as zde:
+        print(f"Penyebab error: {zde.args}")
+        return 50 # Mengembalikan nilai tengah jika tidak ada aturan yang aktif
+    except Exception as e:
+        print(f"Terjadi kesalahan saat defuzzifikasi: {e}")
+        return 0
     else:
-        return numerator / denominator
+        print("Defuzzifikasi berhasil!")
 
 # Kalau pakai openpyxl, bikin fungsi konversi file.xlsx ke file.csv dan timpa disini
 

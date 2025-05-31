@@ -10,4 +10,4 @@ CMD ["python", "main.py"]
 # Labeling image
 LABEL maintainer="Fa Ainama Caldera S <faainamacaldera16@gmail.com>"
 LABEL version="1.0"
-LABEL description="A simple Python GA search application"
+LABEL description="A simple Python Fuzzy reasoning application"
